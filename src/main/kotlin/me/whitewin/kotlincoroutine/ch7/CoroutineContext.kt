@@ -1,6 +1,7 @@
 package me.whitewin.kotlincoroutine.ch7
 
 import kotlinx.coroutines.*
+import kotlin.coroutines.coroutineContext
 
 suspend fun main(): Unit = coroutineScope {
     launch(CoroutineName("Name1")) {
@@ -60,20 +61,35 @@ suspend fun main(): Unit = coroutineScope {
 //    ctx.fold("") { acc, element -> "$acc$element"}
 //        .also(::println)
 
-    log("Started")
-    val v1 = async {
-        delay(500)
-        log("Running async")
-        42
-    }
-    launch {
-        delay(1000)
-        log("Running launch")
-    }
-    log("The answer is ${v1.await()}")
+//    log("Started")
+//    val v1 = async(CoroutineName("c1")) {
+//        delay(500)
+//        log("Running async")
+//        42
+//    }
+//    launch {
+//        delay(1000)
+//        log("Running launch")
+//    }
+//    log("The answer is ${v1.await()}")
+
+//    printName()
+//    withContext(CoroutineName("Outer")) {
+//        printName()
+//        launch(CoroutineName("Inner")) {
+//            printName()
+//        }
+//        delay(10)
+//        printName()
+//    }
+
 }
 
 fun CoroutineScope.log(msg: String) {
     val name = coroutineContext[CoroutineName]?.name
     println("[$name] $msg")
+}
+
+suspend fun printName() {
+    println(coroutineContext[CoroutineName]?.name)
 }
