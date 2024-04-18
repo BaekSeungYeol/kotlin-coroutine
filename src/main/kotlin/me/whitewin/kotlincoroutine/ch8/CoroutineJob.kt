@@ -26,4 +26,10 @@ suspend fun main() = coroutineScope {
     lazyJob.join()
     println(lazyJob)
 
+    val job2: Job = launch {
+        delay(1000)
+        println("Test")
+    }
+
+
 }
