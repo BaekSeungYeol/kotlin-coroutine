@@ -2,6 +2,7 @@ package me.whitewin.kotlincoroutine.ch10
 
 import kotlinx.coroutines.*
 import me.whitewin.kotlincoroutine.ch3.delay
+import kotlin.coroutines.CoroutineContext
 
 //fun main(): Unit = runBlocking {
 //    val scope = CoroutineScope(SupervisorJob())
@@ -32,21 +33,21 @@ import me.whitewin.kotlincoroutine.ch3.delay
 //    delay(3000)
 //}
 
-fun main(): Unit = runBlocking {
-    supervisorScope {
-        launch {
-            delay(1000)
-            throw Error("Some error")
-        }
-
-        launch {
-            delay (2000)
-            println("Will be printed")
-        }
-    }
-    delay(1000)
-    println("Done")
-}
+//fun main(): Unit = runBlocking {
+//    supervisorScope {
+//        launch {
+//            delay(1000)
+//            throw Error("Some error")
+//        }
+//
+//        launch {
+//            delay (2000)
+//            println("Will be printed")
+//        }
+//    }
+//    delay(1000)
+//    println("Done")
+//}
 
 //suspend fun notifyAnalytics(actions: List<UserAction>) =
 //    supervisorScope {
