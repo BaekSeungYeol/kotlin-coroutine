@@ -1,8 +1,7 @@
 package me.whitewin.kotlincoroutine.ch15
 
 import kotlinx.coroutines.*
-import kotlinx.coroutines.test.currentTime
-import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import kotlin.coroutines.CoroutineContext
@@ -106,12 +105,107 @@ class FetchUserDataTest {
         }
         val name2 = CoroutineName("Name 2")
         withContext(name2) {
-            listOf(1,2,3,).mapAsync {
+            listOf(1,2,3).mapAsync {
                 ctx = currentCoroutineContext()
                 it
             }
             assertEquals(name2, ctx?.get(CoroutineName))
         }
+    }
+
+    @Test
+    fun `should support cancellation`() = runTest {
+        var job: Job? = null
+        val parentJob = launch {
+            listOf("A").mapAsync {
+                job = currentCoroutineContext().job
+                delay(Long.MAX_VALUE)
+            }
+        }
+        delay(1000)
+        parentJob.cancel()
+        assertEquals(true, job?.isCancelled)
+    }
+
+    @Test
+    fun standardTestDispatcher() {
+        CoroutineScope(StandardTestDispatcher()).launch {
+            print("A")
+            delay(1)
+            print("B")
+        }
+
+        CoroutineScope(StandardTestDispatcher()).launch {
+            print("C")
+            delay(1)
+            print("D")
+        }
+    }
+
+    @Test
+    fun testName() = runTest(UnconfinedTestDispatcher()) {
+         // ...
+    }
+
+//    @Test
+//    fun `should change dispatcher`() = runBlocking {
+//        // given
+//        val csvReader = mockk<CsvReader>()
+//        val startThreadName = "MyName"
+//        var usedThreadName: String? = null
+//        every {
+//            csvReader.readCsvBlocking(
+//                aFileName,
+//                GameState::class.java
+//            )
+//        } coAnswers {
+//            usedThreadName = Thread.currentThread().name
+//            aGameState
+//        }
+//        val saveReader = SaveReader(csvReader)
+//
+//        // when
+//        withContext(newSingleThreadContext((startThreadName))) {
+//            saveReader.readSave(aFileName)
+//        }
+//
+//        // then
+//        assertNotNull(usedThreadName)
+//        val expectedPrefix = "DefaultDispatcher-worker-"
+//        assert(usedThreadName!!.startsWith(expectedPrefix))
+//    }
+
+    @Test
+    fun `should show progress bar when sending data`() = runTest {
+        // given
+        val database = FakeDatabase()
+        val vm = UserViewModel(database)
+
+        // when
+        launch {
+            vm.sendUserData()
+        }
+
+        // then
+        assertEquals(false, vm.progressBarVisible.value)
+
+        // when
+        advanceTimeBy(1000)
+
+        // then
+        assertEquals(false, vm.progressBarVisibility.value)
+
+        // when
+        runCurrent()
+
+        // then
+        assertEquals(true, vm.progressBarVisible.value)
+
+        // when
+        advanceUntilIdle()
+
+        // then
+        assertEquals(false, vm.progressBarVisibility.value)
     }
 
 }
